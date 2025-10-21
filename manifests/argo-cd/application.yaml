@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/mofwili/your-gitops-repo.git'
+    repoURL: 'https://github.com/vasplustechnologies/argo-gitops-project.git'
     targetRevision: HEAD
     path: manifests
   destination:
