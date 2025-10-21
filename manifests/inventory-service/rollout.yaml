@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: inventory-service-rollout
+  namespace: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+      - name: inventory-service
+        image: mofwili/inventory-service:1.0.0
+        ports:
+        - containerPort: 8081
+  strategy:
+    canary:
+      steps:
+        - setWeight: 20
+        - pause: {duration: 10s}
+        - setWeight: 50
+        - pause: {duration: 10s}
+        - setWeight: 100

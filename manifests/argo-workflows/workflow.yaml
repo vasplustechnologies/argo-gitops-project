@@ -1,35 +1,42 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+kind: WorkflowTemplate
 metadata:
-  generateName: microservice-deploy-
+  name: microservice-deploy
   namespace: argo
 spec:
-  entrypoint: microservices
   templates:
-  - name: microservices
-    dag:
-      tasks:
-      - name: deploy-order
-        template: deploy-order
-      - name: deploy-notification
-        template: deploy-notification
-      - name: deploy-inventory
-        template: deploy-inventory
-
-  - name: deploy-order
-    container:
-      image: bitnami/kubectl:latest
-      command: [sh, -c]
-      args: ["kubectl apply -f /manifests/order-service/deployment.yaml && kubectl apply -f /manifests/order-service/service.yaml"]
-
-  - name: deploy-notification
-    container:
-      image: bitnami/kubectl:latest
-      command: [sh, -c]
-      args: ["kubectl apply -f /manifests/notification-service/deployment.yaml && kubectl apply -f /manifests/notification-service/service.yaml"]
-
-  - name: deploy-inventory
-    container:
-      image: bitnami/kubectl:latest
-      command: [sh, -c]
-      args: ["kubectl apply -f /manifests/inventory-service/deployment.yaml && kubectl apply -f /manifests/inventory-service/service.yaml"]
+    - name: deploy-order
+      container:
+        image: bitnami/kubectl:latest
+        command: [sh, -c]
+        args:
+          - |
+            kubectl apply -f https://raw.githubusercontent.com/vasplustechnologies/argo-gitops-project/main/manifests/order-service/deployment.yaml
+            kubectl apply -f https://raw.githubusercontent.com/vasplustechnologies/argo-gitops-project/main/manifests/order-service/service.yaml
+    - name: deploy-notification
+      container:
+        image: bitnami/kubectl:latest
+        command: [sh, -c]
+        args:
+          - |
+            kubectl apply -f https://raw.githubusercontent.com/vasplustechnologies/argo-gitops-project/main/manifests/notification-service/deployment.yaml
+            kubectl apply -f https://raw.githubusercontent.com/vasplustechnologies/argo-gitops-project/main/manifests/notification-service/service.yaml
+    - name: deploy-inventory
+      container:
+        image: bitnami/kubectl:latest
+        command: [sh, -c]
+        args:
+          - |
+            kubectl apply -f https://raw.githubusercontent.com/vasplustechnologies/argo-gitops-project/main/manifests/inventory-service/deployment.yaml
+            kubectl apply -f https://raw.githubusercontent.com/vasplustechnologies/argo-gitops-project/main/manifests/inventory-service/service.yaml
+    - name: microservices
+      dag:
+        tasks:
+          - name: deploy-order
+            template: deploy-order
+          - name: deploy-notification
+            template: deploy-notification
+            dependencies: [deploy-order]
+          - name: deploy-inventory
+            template: deploy-inventory
+            dependencies: [deploy-notification]

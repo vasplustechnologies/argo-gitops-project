@@ -1,28 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: dockerhub-sensor
+  name: git-trigger-deploy
   namespace: argo-events
 spec:
   dependencies:
-    - name: order-service-dep
-      eventSourceName: dockerhub-push
-      eventName: dockerhub
+    - name: git-commit
+      eventSourceName: git-events
+      eventName: example-repo
   triggers:
     - template:
-        name: workflow-trigger
-        k8s:
-          group: argoproj.io
-          version: v1alpha1
-          resource: workflows
-          operation: create
+        name: run-deploy-workflow
+        argoWorkflow:
           source:
             resource:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                generateName: order-service-trigger-
-                namespace: argo
+                generateName: microservice-deploy-
               spec:
                 workflowTemplateRef:
                   name: microservice-deploy
