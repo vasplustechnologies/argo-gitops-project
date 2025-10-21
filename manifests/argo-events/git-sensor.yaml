@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: git-push-sensor
+  namespace: argo-events
+spec:
+  dependencies:
+    - name: git-push-dep
+      eventSourceName: git-events
+      eventName: example-repo
+  triggers:
+    - template:
+        name: print-message
+        k8s:
+          group: batch
+          version: v1
+          resource: jobs
+          operation: create
+          source:
+            resource:
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                generateName: hello-git-
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: hello
+                        image: busybox
+                        command: ["echo", "Git push received!"]
+                    restartPolicy: Never
