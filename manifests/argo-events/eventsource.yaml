@@ -10,7 +10,7 @@ spec:
       repository: argo-gitops-project
       webhook:
         endpoint: /push
-        port: 12000
+        port: "12000"
       events:
         - push
       apiToken:
